@@ -1,0 +1,6 @@
+{
+  "name": "TeleVoice Summary & Infographics",
+  "description": "Автоматическая транскрипция голосовых сообщений из Telegram с генерацией наглядных саммари, задач и инфографики с помощью Gemini AI.",
+  "requestFramePermissions": ["microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
