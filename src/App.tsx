@@ -9,6 +9,7 @@ import { VoiceMessageList } from './components/VoiceMessageList';
 import { InfographicsDashboard } from './components/InfographicsDashboard';
 import { TelegramModal } from './components/TelegramModal';
 import { AudioUploadModal } from './components/AudioUploadModal';
+import { GitHubExportModal } from './components/GitHubExportModal';
 import { INITIAL_VOICE_MESSAGES } from './mockData';
 import { VoiceMessage, TelegramBotStatus } from './types';
 import { Sparkles, Bot, Mic, AlertCircle } from 'lucide-react';
@@ -26,6 +27,7 @@ export default function App() {
 
   const [isTelegramModalOpen, setIsTelegramModalOpen] = useState(false);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [isGitHubModalOpen, setIsGitHubModalOpen] = useState(false);
   const [isSimulating, setIsSimulating] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isProcessingAudio, setIsProcessingAudio] = useState(false);
@@ -106,13 +108,32 @@ export default function App() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ scenario: Math.floor(Math.random() * 3) }),
-      });
-      const data = await res.json();
-      if (res.ok && data.message) {
-        setMessages((prev) => [data.message, ...prev]);
-        setSelectedMessageId(data.message.id);
-        showNotification(`Новое голосовое от ${data.message.sender.name} получено и обработано!`);
+      }).catch(() => null);
+
+      if (res && res.ok) {
+        const data = await res.json();
+        if (data.message) {
+          setMessages((prev) => [data.message, ...prev]);
+          setSelectedMessageId(data.message.id);
+          showNotification(`Новое голосовое от ${data.message.sender.name} получено и обработано!`);
+          return;
+        }
       }
+
+      // Static host fallback (e.g. GitHub Pages without active Node backend)
+      const randomBase = INITIAL_VOICE_MESSAGES[Math.floor(Math.random() * INITIAL_VOICE_MESSAGES.length)];
+      const simulatedMsg: VoiceMessage = {
+        ...randomBase,
+        id: `sim-${Date.now()}`,
+        receivedAt: new Date().toISOString(),
+        summary: {
+          ...randomBase.summary,
+          headline: `[Live Test] ${randomBase.summary.headline}`,
+        },
+      };
+      setMessages((prev) => [simulatedMsg, ...prev]);
+      setSelectedMessageId(simulatedMsg.id);
+      showNotification(`Новое голосовое от ${simulatedMsg.sender.name} смоделировано!`);
     } catch (err) {
       console.error(err);
     } finally {
@@ -211,6 +232,7 @@ export default function App() {
         botStatus={botStatus}
         onOpenTelegramModal={() => setIsTelegramModalOpen(true)}
         onOpenUploadModal={() => setIsUploadModalOpen(true)}
+        onOpenGitHubModal={() => setIsGitHubModalOpen(true)}
         onSimulateMessage={handleSimulateMessage}
         onRefresh={loadData}
         isSimulating={isSimulating}
@@ -266,6 +288,11 @@ export default function App() {
         onClose={() => setIsUploadModalOpen(false)}
         onProcessAudio={handleProcessAudio}
         isProcessing={isProcessingAudio}
+      />
+
+      <GitHubExportModal
+        isOpen={isGitHubModalOpen}
+        onClose={() => setIsGitHubModalOpen(false)}
       />
     </div>
   );

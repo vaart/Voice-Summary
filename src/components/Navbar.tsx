@@ -1,11 +1,12 @@
 import React from 'react';
-import { Mic, Send, Bot, Sparkles, RefreshCw, PlusCircle, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Mic, Send, Bot, Sparkles, RefreshCw, PlusCircle, CheckCircle2, AlertCircle, Github } from 'lucide-react';
 import { TelegramBotStatus } from '../types';
 
 interface NavbarProps {
   botStatus: TelegramBotStatus | null;
   onOpenTelegramModal: () => void;
   onOpenUploadModal: () => void;
+  onOpenGitHubModal: () => void;
   onSimulateMessage: () => void;
   onRefresh: () => void;
   isSimulating: boolean;
@@ -16,6 +17,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   botStatus,
   onOpenTelegramModal,
   onOpenUploadModal,
+  onOpenGitHubModal,
   onSimulateMessage,
   onRefresh,
   isSimulating,
@@ -90,6 +92,17 @@ export const Navbar: React.FC<NavbarProps> = ({
             <Mic className="w-4 h-4" />
             <span className="hidden sm:inline">Записать / Загрузить</span>
             <span className="sm:hidden">Аудио</span>
+          </button>
+
+          {/* Export to GitHub / Download ZIP Button */}
+          <button
+            id="btn-open-github"
+            onClick={onOpenGitHubModal}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold shadow-xs transition-colors"
+            title="Экспортировать на свой GitHub или скачать ZIP архив"
+          >
+            <Github className="w-3.5 h-3.5" />
+            <span className="hidden md:inline">GitHub / ZIP</span>
           </button>
 
           {/* Refresh Button */}

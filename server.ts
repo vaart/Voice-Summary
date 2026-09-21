@@ -1,5 +1,6 @@
 import express from 'express';
 import path from 'path';
+import { exec } from 'child_process';
 import { createServer as createViteServer } from 'vite';
 import { GoogleGenAI, Type } from '@google/genai';
 import dotenv from 'dotenv';
@@ -745,6 +746,29 @@ app.delete('/api/messages/:id', (req, res) => {
   const { id } = req.params;
   storedMessages = storedMessages.filter((m) => m.id !== id);
   res.json({ success: true });
+});
+
+// Download full project source code as a ZIP archive for GitHub export
+app.get('/api/project/download-zip', (req, res) => {
+  const zipPath = path.join('/tmp', 'televoice-summary-app.zip');
+  const pythonCmd = `python3 -c "
+import os, zipfile
+with zipfile.ZipFile('${zipPath}', 'w', zipfile.ZIP_DEFLATED) as z:
+    for root, dirs, files in os.walk('.'):
+        dirs[:] = [d for d in dirs if d not in ('node_modules', 'dist', '.git', '.cache', '__pycache__')]
+        for f in files:
+            if f.endswith('.zip'): continue
+            p = os.path.join(root, f)
+            z.write(p, os.path.relpath(p, '.'))
+"`;
+
+  exec(pythonCmd, { cwd: process.cwd() }, (err) => {
+    if (err) {
+      console.error('Failed to create project ZIP:', err);
+      return res.status(500).json({ error: 'Не удалось создать архив проекта' });
+    }
+    res.download(zipPath, 'televoice-summary-app.zip');
+  });
 });
 
 // Start Server with Vite
