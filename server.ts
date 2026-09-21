@@ -755,7 +755,7 @@ app.get('/api/project/download-zip', (req, res) => {
 import os, zipfile
 with zipfile.ZipFile('${zipPath}', 'w', zipfile.ZIP_DEFLATED) as z:
     for root, dirs, files in os.walk('.'):
-        dirs[:] = [d for d in dirs if d not in ('node_modules', 'dist', '.git', '.cache', '__pycache__')]
+        dirs[:] = [d for d in dirs if d not in ('node_modules', '.git', '.cache', '__pycache__')]
         for f in files:
             if f.endswith('.zip'): continue
             p = os.path.join(root, f)
